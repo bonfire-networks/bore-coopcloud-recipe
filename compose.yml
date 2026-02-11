@@ -1,38 +1,97 @@
 ---
 services:
   app:
-    image: nginx:1.27.5
+    image: ekzhang/bore:0.6.0
+    command: server
     networks:
       - proxy
+    ports:
+      ## bore control port (bore's own protocol, not HTTP — published directly)
+      - "7835:7835"
+    environment:
+      - BORE_SECRET=${SECRET}
+      - BORE_MIN_PORT=${MIN_PORT:-1}
+      - BORE_MAX_PORT=${MAX_PORT:-10}
     deploy:
       restart_policy:
         condition: on-failure
       labels:
         - "traefik.enable=true"
-        - "traefik.http.services.${STACK_NAME}.loadbalancer.server.port=80"
-        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`${EXTRA_DOMAINS})"
-        - "traefik.http.routers.${STACK_NAME}.entrypoints=web-secure"
-        - "traefik.http.routers.${STACK_NAME}.tls.certresolver=${LETS_ENCRYPT_ENV}"
-        ## Edit the following line if you are using one, but not both, "Redirect" sections below
-        #- "traefik.http.routers.${STACK_NAME}.middlewares=${STACK_NAME}-redirectscheme,${STACK_NAME}-redirecthostname"
-        ## Redirect from EXTRA_DOMAINS to DOMAIN
-        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.regex=^http[s]?://([^/]*)/(.*)"
-        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.replacement=https://${DOMAIN}/$${2}"
-        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.permanent=true"
-        ## Redirect HTTP to HTTPS
-        # - "traefik.http.middlewares.${STACK_NAME}-redirectscheme.redirectscheme.scheme=https"
-        # - "traefik.http.middlewares.${STACK_NAME}-redirectscheme.redirectscheme.permanent=true"
+        ## Each tunnel port maps to a subdomain: <port>.${DOMAIN}
+        ## Usage: bore local <LOCAL_PORT> --to ${DOMAIN} --port <N>
+        ## Access: https://<N>.${DOMAIN}
+        ##
+        ## Tunnel 1
+        - "traefik.http.routers.${STACK_NAME}-1.rule=Host(`1.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-1.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-1.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-1.service=${STACK_NAME}-1"
+        - "traefik.http.services.${STACK_NAME}-1.loadbalancer.server.port=1"
+        ## Tunnel 2
+        - "traefik.http.routers.${STACK_NAME}-2.rule=Host(`2.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-2.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-2.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-2.service=${STACK_NAME}-2"
+        - "traefik.http.services.${STACK_NAME}-2.loadbalancer.server.port=2"
+        ## Tunnel 3
+        - "traefik.http.routers.${STACK_NAME}-3.rule=Host(`3.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-3.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-3.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-3.service=${STACK_NAME}-3"
+        - "traefik.http.services.${STACK_NAME}-3.loadbalancer.server.port=3"
+        ## Tunnel 4
+        - "traefik.http.routers.${STACK_NAME}-4.rule=Host(`4.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-4.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-4.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-4.service=${STACK_NAME}-4"
+        - "traefik.http.services.${STACK_NAME}-4.loadbalancer.server.port=4"
+        ## Tunnel 5
+        - "traefik.http.routers.${STACK_NAME}-5.rule=Host(`5.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-5.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-5.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-5.service=${STACK_NAME}-5"
+        - "traefik.http.services.${STACK_NAME}-5.loadbalancer.server.port=5"
+        ## Tunnel 6
+        - "traefik.http.routers.${STACK_NAME}-6.rule=Host(`6.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-6.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-6.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-6.service=${STACK_NAME}-6"
+        - "traefik.http.services.${STACK_NAME}-6.loadbalancer.server.port=6"
+        ## Tunnel 7
+        - "traefik.http.routers.${STACK_NAME}-7.rule=Host(`7.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-7.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-7.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-7.service=${STACK_NAME}-7"
+        - "traefik.http.services.${STACK_NAME}-7.loadbalancer.server.port=7"
+        ## Tunnel 8
+        - "traefik.http.routers.${STACK_NAME}-8.rule=Host(`8.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-8.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-8.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-8.service=${STACK_NAME}-8"
+        - "traefik.http.services.${STACK_NAME}-8.loadbalancer.server.port=8"
+        ## Tunnel 9
+        - "traefik.http.routers.${STACK_NAME}-9.rule=Host(`9.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-9.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-9.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-9.service=${STACK_NAME}-9"
+        - "traefik.http.services.${STACK_NAME}-9.loadbalancer.server.port=9"
+        ## Tunnel 10
+        - "traefik.http.routers.${STACK_NAME}-10.rule=Host(`10.${DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}-10.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}-10.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        - "traefik.http.routers.${STACK_NAME}-10.service=${STACK_NAME}-10"
+        - "traefik.http.services.${STACK_NAME}-10.loadbalancer.server.port=10"
+        ##
+        ## To add more tunnels, copy a block above and increment the number.
+        ## Make sure MAX_PORT in .env matches your highest tunnel number.
+        ##
         ## When you're ready for release, run "abra recipe sync <name>" to set this
         - "coop-cloud.${STACK_NAME}.version="
         ## Enable backups: https://docs.coopcloud.tech/maintainers/handbook/#how-do-i-configure-backuprestore
         # - "backupbot.backup=true"
         # - "backupbot.backup.path=/some/path"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 1m
+    ## No healthcheck: bore's image is built from scratch (no shell, no curl).
+    ## The deploy restart_policy handles recovery.
 
 networks:
   proxy:
