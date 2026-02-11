@@ -1,0 +1,39 @@
+---
+services:
+  app:
+    image: nginx:1.27.5
+    networks:
+      - proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.${STACK_NAME}.loadbalancer.server.port=80"
+        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${DOMAIN}`${EXTRA_DOMAINS})"
+        - "traefik.http.routers.${STACK_NAME}.entrypoints=web-secure"
+        - "traefik.http.routers.${STACK_NAME}.tls.certresolver=${LETS_ENCRYPT_ENV}"
+        ## Edit the following line if you are using one, but not both, "Redirect" sections below
+        #- "traefik.http.routers.${STACK_NAME}.middlewares=${STACK_NAME}-redirectscheme,${STACK_NAME}-redirecthostname"
+        ## Redirect from EXTRA_DOMAINS to DOMAIN
+        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.regex=^http[s]?://([^/]*)/(.*)"
+        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.replacement=https://${DOMAIN}/$${2}"
+        # - "traefik.http.middlewares.${STACK_NAME}-redirecthostname.redirectregex.permanent=true"
+        ## Redirect HTTP to HTTPS
+        # - "traefik.http.middlewares.${STACK_NAME}-redirectscheme.redirectscheme.scheme=https"
+        # - "traefik.http.middlewares.${STACK_NAME}-redirectscheme.redirectscheme.permanent=true"
+        ## When you're ready for release, run "abra recipe sync <name>" to set this
+        - "coop-cloud.${STACK_NAME}.version="
+        ## Enable backups: https://docs.coopcloud.tech/maintainers/handbook/#how-do-i-configure-backuprestore
+        # - "backupbot.backup=true"
+        # - "backupbot.backup.path=/some/path"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 1m
+
+networks:
+  proxy:
+    external: true
