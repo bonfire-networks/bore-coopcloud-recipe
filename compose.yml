@@ -86,7 +86,7 @@ services:
         ## Make sure MAX_PORT in .env matches your highest tunnel number.
         ##
         ## When you're ready for release, run "abra recipe sync <name>" to set this
-        - "coop-cloud.${STACK_NAME}.version="
+        - "coop-cloud.${STACK_NAME}.version=0.0.1"
         ## Enable backups: https://docs.coopcloud.tech/maintainers/handbook/#how-do-i-configure-backuprestore
         # - "backupbot.backup=true"
         # - "backupbot.backup.path=/some/path"
